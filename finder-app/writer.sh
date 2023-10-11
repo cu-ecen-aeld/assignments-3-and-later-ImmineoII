@@ -15,7 +15,6 @@ if [ -d $writefile ]; then
     exit 1
 fi
 
-file_basename=$(basename $writefile)
 target_directory=$(dirname $writefile)
 
 if [ ! -d $target_directory ];then
