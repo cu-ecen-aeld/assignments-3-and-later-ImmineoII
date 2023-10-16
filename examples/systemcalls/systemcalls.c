@@ -77,7 +77,6 @@ bool do_exec(int count, ...)
     }
     if (cpid == 0){
         //child code
-        // int ret = 0;
         execv(command[0], &command[0]);
 
     }else{
