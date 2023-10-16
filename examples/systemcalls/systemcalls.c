@@ -71,29 +71,26 @@ bool do_exec(int count, ...)
     int cpid = fork();
     int status;
     int cret = -1;
-    if(cpid < 0){
+    if(cpid == -1){
         //fork failed
         return false;
     }
-
-    if (cpid){
+    if (cpid == 0){
         //child code
-        int ret = 0;
-        ret = execv(command[0], &command[0]);
-        exit(ret);
+        // int ret = 0;
+        execv(command[0], &command[0]);
+
     }else{
         //parent code
-        waitpid(cpid, &status, WNOHANG);
-        while (!WIFEXITED(status))
-        {
+        waitpid(cpid, &status, 0);
+        if (WIFEXITED(status)){
+            cret = WEXITSTATUS(status);    
         }
-        cret = WEXITSTATUS(status);    
     }
 
-
     va_end(args);
-    printf("ret %d \n",cret);
-    if (cret < 0){
+
+    if (cret == -1){
         return false;
     }else{
         return true;
