@@ -1,8 +1,8 @@
-CC=$(CROSS_COMPILE)"gcc"
+CC?=$(CROSS_COMPILE)"gcc"
 
 default: writer;
 
-all: writer 
+all: writer ;
 
 clean:
 	rm writer &>/dev/null
