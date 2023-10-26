@@ -14,9 +14,9 @@
 #include <syslog.h>
 #include <arpa/inet.h>
 
-int server_fd = 0;
-int client_fd = 0; 
-FILE* fd = NULL;
+static int server_fd = 0;
+static int client_fd = 0; 
+static FILE* fd = NULL;
 
 static void graceful_stop(int signum){
     syslog(LOG_DEBUG, "Caught signal, exiting");
@@ -32,7 +32,6 @@ static void graceful_stop(int signum){
         fclose(fd);
         syslog(LOG_DEBUG, "Closing file");
     }
-    exit(EXIT_SUCCESS);
 }
 
 static void daemonize(){
@@ -125,7 +124,7 @@ int main(int argc, char **argv){
         syslog(LOG_DEBUG, "Unable to create server socket");
         return -1;
     }
-
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)); 
     //bind socket to address
     ret = bind(server_fd, servinfo->ai_addr, servinfo->ai_addrlen);
     if (ret < 0){
@@ -170,7 +169,7 @@ int main(int argc, char **argv){
         client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_addr_size);
         if (client_fd < 0){
             syslog(LOG_DEBUG, "Connection accept failed");
-            continue;
+            exit(EXIT_FAILURE);
         }
         inet_ntop(client_addr.ss_family,get_in_addr((struct sockaddr *)&client_addr),
             client_ip, sizeof client_ip);
@@ -234,6 +233,5 @@ int main(int argc, char **argv){
         syslog(LOG_DEBUG, "File closed");
         close(client_fd);
         syslog(LOG_DEBUG, "Closed connection from %s", client_ip);
-
     }
 }
