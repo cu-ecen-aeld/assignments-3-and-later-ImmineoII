@@ -134,8 +134,8 @@ int main(int argc, char **argv){
     }
 
     //check if program should be deamonized
-    if(argc == 2){
-        if(strcmp(argv[1], "-d")){
+    if(argc ==2){
+        if(strcmp(argv[1], "-d") == 0){
             syslog(LOG_DEBUG, "Turning into a deamon");
             daemonize();
         }
