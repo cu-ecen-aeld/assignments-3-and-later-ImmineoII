@@ -8,4 +8,4 @@ clean:
 	rm aesdsocket &>/dev/null
 
 aesdsocket: 
-	$(CC) ${CFLAGS} ${INCLUDES} aesdsocket.c -o aesdsocket ${LIBS}
+	$(CC) ${CFLAGS} -pthread ${INCLUDES} aesdsocket.c -o aesdsocket ${LIBS}
