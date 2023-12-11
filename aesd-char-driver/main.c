@@ -38,7 +38,7 @@ int aesd_open(struct inode *inode, struct file *filp)
     struct aesd_dev* dev_data = container_of(inode->i_cdev, struct aesd_dev, cdev);
     filp->private_data = dev_data;
 
-    return 0 ;
+    return 0;
 }
 
 int aesd_release(struct inode *inode, struct file *filp)
