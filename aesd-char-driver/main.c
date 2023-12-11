@@ -69,7 +69,11 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     /**
      * TODO: handle write
      */
-    copy_from_user(&aesd_device.write_buff[aesd_device.write_offset], buf, count);
+    retval = copy_from_user(&aesd_device.write_buff[aesd_device.write_offset], buf, count);
+    if (retval != 0){
+        return -EFAULT;
+    }
+    retval = count;
     aesd_device.write_offset = aesd_device.write_offset + count;
 
     if ( strcmp(&aesd_device.write_buff[aesd_device.write_offset -1], "\n") == 0){
