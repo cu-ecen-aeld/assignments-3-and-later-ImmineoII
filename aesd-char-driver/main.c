@@ -73,9 +73,9 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
 
     if ( *aesd_device.write_buff[aesd_device.write_offset] == "\n" ){
 
-        struct aesd_buffer_entry *new_entry = kmalloc(sizeof(struct aesd_buffer_entry), GFP_KERNEL);
+        struct aesd_buffer_entry *new_entry = (struct aesd_buffer_entry*) kmalloc(sizeof(struct aesd_buffer_entry), GFP_KERNEL);
         new_entry->size = aesd_device.write_offset;
-        new_entry->buffptr = kmalloc(sizeof(char) * aesd_device.write_offset, GFP_KERNEL);
+        new_entry->buffptr = (char *) kmalloc(sizeof(char) * aesd_device.write_offset, GFP_KERNEL);
         memcpy(aesd_device.write_buff, new_entry->buffptr, sizeof(char) * aesd_device.write_offset);
 
         aesd_circular_buffer_add_entry(&aesd_device.dev_buff, new_entry);
