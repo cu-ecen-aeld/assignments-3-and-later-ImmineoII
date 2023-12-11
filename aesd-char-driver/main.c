@@ -11,6 +11,7 @@
  *
  */
 
+#include <cstring>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/printk.h>
@@ -72,7 +73,7 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     copy_from_user(&aesd_device.write_buff[aesd_device.write_offset], buf, count);
     aesd_device.write_offset = aesd_device.write_offset + count;
 
-    if ( aesd_device.write_buff[aesd_device.write_offset -1] == "\n" ){
+    if ( strcmp(aesd_device.write_buff[aesd_device.write_offset -1], "\n") == 0){
 
         struct aesd_buffer_entry *new_entry = (struct aesd_buffer_entry*) kmalloc(sizeof(struct aesd_buffer_entry), GFP_KERNEL);
         new_entry->size = aesd_device.write_offset;
