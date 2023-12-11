@@ -75,9 +75,10 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     }
     retval = count;
     aesd_device.write_offset = aesd_device.write_offset + count;
+    PDEBUG("write buffer cointains: %s", aesd_device.write_buff);
 
     if ( strcmp(&aesd_device.write_buff[aesd_device.write_offset -1], "\n") == 0){
-
+        PDEBUG("newline detected");
         struct aesd_buffer_entry *new_entry = (struct aesd_buffer_entry*) kmalloc(sizeof(struct aesd_buffer_entry), GFP_KERNEL);
         new_entry->size = aesd_device.write_offset;
         new_entry->buffptr = (char *) kmalloc(sizeof(char) * aesd_device.write_offset, GFP_KERNEL);
