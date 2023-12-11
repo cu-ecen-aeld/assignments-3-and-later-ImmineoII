@@ -17,11 +17,13 @@
 #include <linux/types.h>
 #include <linux/cdev.h>
 #include <linux/fs.h> // file_operations
+#include <string.h>
+#include "aesd-char-driver/aesd-circular-buffer.h"
 #include "aesdchar.h"
 int aesd_major =   0; // use dynamic major
 int aesd_minor =   0;
 
-MODULE_AUTHOR("Your Name Here"); /** TODO: fill in your name **/
+MODULE_AUTHOR("Eric Boccati"); /** TODO: fill in your name **/
 MODULE_LICENSE("Dual BSD/GPL");
 
 struct aesd_dev aesd_device;
@@ -32,7 +34,11 @@ int aesd_open(struct inode *inode, struct file *filp)
     /**
      * TODO: handle open
      */
-    return 0;
+
+    struct aesd_dev* dev_data;
+    dev_data = container_of(inode->i_cdev, struct aesd_dev, cdev);
+    filp->private_data = dev_data;
+    return dev_data;
 }
 
 int aesd_release(struct inode *inode, struct file *filp)
@@ -63,6 +69,22 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     /**
      * TODO: handle write
      */
+    copy_from_user(&aesd_device.write_buff[aesd_device.write_offset], buf, count);
+    aesd_device.write_offset = aesd_device.write_offset + count;
+
+    if ( write_buff[aesd_device.write_offset] == "\n" ){
+
+        struct aesd_buffer_entry *new_entry = kmalloc(sizeof(struct aesd_buffer_entry), GFP_KERNEL);
+        new_entry.size = aesd_device.write_offset;
+        new_entry.buffptr = kmalloc(sizeof(char) * aesd_device.write_offset, GFP_KERNEL);
+        memcpy(aesd_device.write_buff, new_entry.buffptr, sizeof(char) * aesd_device.write_offset);
+
+        aesd_circular_buffer_add_entry(&aesd_device.dev_buff, new_entry);
+        retval = aesd_device.write_offset;
+
+        memset(aesd_device.write_buff, 0, sizeof(aesd_device.write_buff);
+        aesd_device.write_offset = 0;
+    }
     return retval;
 }
 struct file_operations aesd_fops = {
@@ -101,7 +123,7 @@ int aesd_init_module(void)
         return result;
     }
     memset(&aesd_device,0,sizeof(struct aesd_dev));
-
+    aesd_circular_buffer_init(&aesd_device.dev_buff);
     /**
      * TODO: initialize the AESD specific portion of the device
      */
