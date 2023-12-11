@@ -35,10 +35,10 @@ int aesd_open(struct inode *inode, struct file *filp)
      * TODO: handle open
      */
 
-    struct aesd_dev* dev_data;
-    dev_data = container_of(inode->i_cdev, struct aesd_dev, cdev);
+    struct aesd_dev* dev_data = container_of(inode->i_cdev, struct aesd_dev, cdev);
     filp->private_data = dev_data;
-    return dev_data;
+
+    return 0 ;
 }
 
 int aesd_release(struct inode *inode, struct file *filp)
