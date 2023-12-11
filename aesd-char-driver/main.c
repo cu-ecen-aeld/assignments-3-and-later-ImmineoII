@@ -81,7 +81,7 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
         aesd_circular_buffer_add_entry(&aesd_device.dev_buff, new_entry);
         retval = aesd_device.write_offset;
 
-        memset(aesd_device.write_buff, 0, sizeof(aesd_device.write_buff);
+        memset(aesd_device.write_buff, 0, sizeof(aesd_device.write_buff));
         aesd_device.write_offset = 0;
     }
     return retval;
