@@ -8,11 +8,11 @@
  *
  */
 
-#include <stdbool.h>
 #ifdef __KERNEL__
 #include <linux/string.h>
 #else
 #include <string.h>
+#include <stdbool.h>
 #endif
 
 #include "aesd-circular-buffer.h"
