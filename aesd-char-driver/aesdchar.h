@@ -32,7 +32,7 @@ struct aesd_dev
      */
      char write_buff[1024];
      int write_offset;
-     struct aesd_circular_buffer dev_buff;
+     struct aesd_circular_buffer* dev_buff;
      struct cdev cdev;     /* Char device structure      */
 };
 

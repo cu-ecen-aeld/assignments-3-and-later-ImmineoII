@@ -60,9 +60,9 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     * TODO: handle read
     */
     size_t read_offs = (size_t) filp->f_pos;
-    size_t ret_offs;
+    size_t * ret_offs;
 
-    struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(&aesd_device.dev_buff, read_offs, &ret_offs);
+    struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(aesd_device.dev_buff, read_offs, ret_offs);
     PDEBUG("got entry %s with size %d",entry->buffptr, entry->size);
     if ( entry->size == 0 ){
         retval = 0;
@@ -75,7 +75,7 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     
     retval = entry->size;
     copy_to_user(buf, entry->buffptr, count);
-    *f_pos = read_offs - ret_offs + entry->size; 
+    *f_pos = read_offs - *ret_offs + entry->size; 
 
     return retval;
 }
@@ -103,7 +103,7 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
         new_entry->buffptr = (char *) kmalloc(sizeof(char) * aesd_device.write_offset, GFP_KERNEL);
         memcpy(aesd_device.write_buff, new_entry->buffptr, sizeof(char) * aesd_device.write_offset);
 
-        struct aesd_buffer_entry* old_entry = aesd_circular_buffer_add_entry(&aesd_device.dev_buff, new_entry);
+        struct aesd_buffer_entry* old_entry = aesd_circular_buffer_add_entry(aesd_device.dev_buff, new_entry);
         if ( old_entry != NULL ){
             kfree(old_entry->buffptr);
             kfree(old_entry);
@@ -151,7 +151,8 @@ int aesd_init_module(void)
         return result;
     }
     memset(&aesd_device,0,sizeof(struct aesd_dev));
-    aesd_circular_buffer_init(&aesd_device.dev_buff);
+    aesd_device.dev_buff = (struct aesd_circular_buffer *) kmalloc(sizeof(struct aesd_circular_buffer),GFP_KERNEL);
+    aesd_circular_buffer_init(aesd_device.dev_buff);
     /**
      * TODO: initialize the AESD specific portion of the device
      */
