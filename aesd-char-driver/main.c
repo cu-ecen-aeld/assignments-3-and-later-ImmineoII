@@ -59,9 +59,9 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     /**
     * TODO: handle read
     */
-    ssize_t read_offs = filp->fpos;
-    struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(aesd_device.dev_buff, read_offs, f_pos);
-    if ( entry->size == NULL ){
+    ssize_t read_offs = (ssize_t) filp->f_pos;
+    struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(&aesd_device.dev_buff, read_offs, (ssize_t *) f_pos);
+    if ( entry->size == 0 ){
         retval = -EFAULT;
     }
     if ( entry->size > count ){
