@@ -33,13 +33,18 @@ struct aesd_buffer_entry *aesd_circular_buffer_find_entry_offset_for_fpos(struct
     /**
     * TODO: implement per description
     */
+    
     int starting_entry_index = buffer->out_offs;
     int target_entry_index = starting_entry_index;
     struct aesd_buffer_entry* target_entry;
     int target_offset = char_offset;
+
     do {
         target_entry = &buffer->entry[target_entry_index];
         //if buffer is empty
+        if(target_entry == 0){
+            return NULL;
+        }
         if(target_entry->size == 0){
             return NULL;
         }

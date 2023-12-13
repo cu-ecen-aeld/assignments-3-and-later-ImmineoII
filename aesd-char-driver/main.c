@@ -66,14 +66,16 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     PDEBUG("got entry %s with size %d",entry->buffptr, entry->size);
     if ( entry->size == 0 ){
         retval = 0;
+        return retval
     }
     if ( entry->size > count ){
         retval = -EFAULT;
-    }else {
-        retval = entry->size;
-        copy_to_user(buf, entry->buffptr, count);
-        *f_pos = read_offs - ret_offs + entry->size; 
+        return retval;
     }
+    
+    retval = entry->size;
+    copy_to_user(buf, entry->buffptr, count);
+    *f_pos = read_offs - ret_offs + entry->size; 
 
     return retval;
 }
