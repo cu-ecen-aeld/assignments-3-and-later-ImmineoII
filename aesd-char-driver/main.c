@@ -19,6 +19,7 @@
 #include <linux/cdev.h>
 #include <linux/fs.h> // file_operations
 #include <linux/slab.h> // kmalloc
+#include <stdio.h>
 #include "aesd-circular-buffer.h"
 #include "aesdchar.h"
 int aesd_major =   0; // use dynamic major
@@ -57,8 +58,20 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     ssize_t retval = 0;
     PDEBUG("read %zu bytes with offset %lld",count,*f_pos);
     /**
-     * TODO: handle read
-     */
+    * TODO: handle read
+    */
+    ssize_t read_offs = filp->fpos;
+    struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(aesd_device.dev_buff, read_offs, f_pos);
+    if ( entry->size == NULL ){
+        retval = -EFAULT;
+    }
+    if ( entry->size > count ){
+        retval = -EFAULT;
+    }else {
+        retval = entry->size;
+        copy_to_user(buf, entry->buffptr, count);
+    }
+
     return retval;
 }
 
@@ -85,7 +98,11 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
         new_entry->buffptr = (char *) kmalloc(sizeof(char) * aesd_device.write_offset, GFP_KERNEL);
         memcpy(aesd_device.write_buff, new_entry->buffptr, sizeof(char) * aesd_device.write_offset);
 
-        aesd_circular_buffer_add_entry(&aesd_device.dev_buff, new_entry);
+        struct aesd_buffer_entry* old_entry = aesd_circular_buffer_add_entry(&aesd_device.dev_buff, new_entry);
+        if ( old_entry != NULL ){
+            kfree(old_entry->buffptr);
+            kfree(old_entry);
+        }
 
         memset(aesd_device.write_buff, 0, sizeof(aesd_device.write_buff));
         aesd_device.write_offset = 0;
