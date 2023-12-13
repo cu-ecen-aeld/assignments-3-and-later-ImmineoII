@@ -19,7 +19,6 @@
 #include <linux/cdev.h>
 #include <linux/fs.h> // file_operations
 #include <linux/slab.h> // kmalloc
-#include <stdio.h>
 #include "aesd-circular-buffer.h"
 #include "aesdchar.h"
 int aesd_major =   0; // use dynamic major
