@@ -41,7 +41,7 @@ struct aesd_buffer_entry *aesd_circular_buffer_find_entry_offset_for_fpos(struct
 
     do {
         target_entry = buffer->entry[target_entry_index];
-        if(target_entry->size == 0){
+        if(target_entry == 0){
             return NULL;
         }
         if ( target_offset < target_entry->size){
