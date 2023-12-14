@@ -96,7 +96,7 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     mutex_lock(&aesd_device.write_mutex);
     retval = copy_from_user(&aesd_device.write_buff[aesd_device.write_len], buf, count);
     if (retval != 0){
-        mutex_unlock(aesd_device.write_mutex);
+        mutex_unlock(&aesd_device.write_mutex);
         return -EFAULT;
     }
     aesd_device.write_len = aesd_device.write_len + count;
@@ -121,7 +121,7 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
         memset(aesd_device.write_buff, 0, sizeof(aesd_device.write_buff));
         aesd_device.write_len = 0;
     }
-    mutex_unlock(aesd_device.write_mutex);
+    mutex_unlock(&aesd_device.write_mutex);
     retval = count;
     return retval;
 }
