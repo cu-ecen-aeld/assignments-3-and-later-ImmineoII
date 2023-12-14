@@ -18,8 +18,12 @@
 #include "freebsd/queue.h"
 
 #define BUFF_SIZE 1024
+#define USE_AESD_CHAR_DEVICE 1
+#if USE_AESD_CHAR_DEVICE == 1
+#define DATA_FILE "/dev/aesdchar"
+#else
 #define DATA_FILE "/var/tmp/aesdsocketdata"
-
+#endif
 typedef struct client_thread_data{
     pthread_t tid;
     int client_fd;
