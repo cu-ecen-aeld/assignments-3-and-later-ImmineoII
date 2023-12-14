@@ -163,7 +163,7 @@ int aesd_init_module(void)
     memset(&aesd_device,0,sizeof(struct aesd_dev));
     aesd_device.dev_buff = (struct aesd_circular_buffer *) kmalloc(sizeof(struct aesd_circular_buffer),GFP_KERNEL);
     aesd_circular_buffer_init(aesd_device.dev_buff);
-    mutex_init(aesd_device.write_mutex);
+    mutex_init(&aesd_device.write_mutex);
     /**
      * TODO: initialize the AESD specific portion of the device
      */
