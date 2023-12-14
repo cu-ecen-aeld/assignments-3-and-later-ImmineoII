@@ -31,7 +31,7 @@ struct aesd_dev
      * TODO: Add structure(s) and locks needed to complete assignment requirements
      */
      char write_buff[1024];
-     int write_offset;
+     int write_len;
      struct aesd_circular_buffer* dev_buff;
      struct cdev cdev;     /* Char device structure      */
 };
