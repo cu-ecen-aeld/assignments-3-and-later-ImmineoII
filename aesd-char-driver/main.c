@@ -64,7 +64,7 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     PDEBUG("read offset %lld bytes",read_offs);
     PDEBUG("we have buffer at %p", aesd_device.dev_buff);
     struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(aesd_device.dev_buff, read_offs, &ret_offs);
-    PDEBUG("ret offset %lld bytes",*ret_offs);
+    PDEBUG("ret offset %lld bytes",ret_offs);
     if ( entry->size == 0 ){
         PDEBUG("got empty entry");
         retval = 0;
