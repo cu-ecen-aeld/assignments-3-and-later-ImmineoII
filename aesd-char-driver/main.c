@@ -12,6 +12,7 @@
  */
 
 #include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/string.h>
 #include <linux/init.h>
 #include <linux/printk.h>
@@ -91,8 +92,11 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     /**
      * TODO: handle write
      */
+
+    mutex_lock(&aesd_device.write_mutex);
     retval = copy_from_user(&aesd_device.write_buff[aesd_device.write_len], buf, count);
     if (retval != 0){
+        mutex_unlock(aesd_device.write_mutex);
         return -EFAULT;
     }
     aesd_device.write_len = aesd_device.write_len + count;
@@ -117,6 +121,7 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
         memset(aesd_device.write_buff, 0, sizeof(aesd_device.write_buff));
         aesd_device.write_len = 0;
     }
+    mutex_unlock(aesd_device.write_mutex);
     retval = count;
     return retval;
 }
@@ -158,6 +163,7 @@ int aesd_init_module(void)
     memset(&aesd_device,0,sizeof(struct aesd_dev));
     aesd_device.dev_buff = (struct aesd_circular_buffer *) kmalloc(sizeof(struct aesd_circular_buffer),GFP_KERNEL);
     aesd_circular_buffer_init(aesd_device.dev_buff);
+    mutex_init(aesd_device.write_mutex);
     /**
      * TODO: initialize the AESD specific portion of the device
      */
@@ -180,7 +186,8 @@ void aesd_cleanup_module(void)
     /**
      * TODO: cleanup AESD specific poritions here as necessary
      */
-
+    
+    mutex_destroy(&aesd_device.write_mutex);
     unregister_chrdev_region(devno, 1);
 }
 
