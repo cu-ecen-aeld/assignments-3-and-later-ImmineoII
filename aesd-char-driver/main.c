@@ -62,7 +62,7 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     size_t read_offs = (size_t) filp->f_pos;
     size_t ret_offs;
     PDEBUG("read offset %lld bytes",read_offs);
-    PDEBUG("we have buffer at %p", aesd_device.dev_buff)
+    PDEBUG("we have buffer at %p", aesd_device.dev_buff);
     struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(aesd_device.dev_buff, read_offs, &ret_offs);
     PDEBUG("ret offset %lld bytes",*ret_offs);
     if ( entry->size == 0 ){
