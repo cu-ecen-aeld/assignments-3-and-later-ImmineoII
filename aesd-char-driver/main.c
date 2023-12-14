@@ -78,7 +78,7 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     
     retval = entry->size;
     copy_to_user(buf, entry->buffptr, count);
-    *f_pos = read_offs - *ret_offs + entry->size; 
+    *f_pos = read_offs - ret_offs + entry->size; 
 
     return retval;
 }
