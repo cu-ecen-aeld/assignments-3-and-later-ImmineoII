@@ -108,10 +108,11 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
         PDEBUG("write buffer cointains: %s", aesd_device.write_buff);
 
         struct aesd_buffer_entry* old_entry = aesd_circular_buffer_add_entry(aesd_device.dev_buff, new_entry);
-        // if ( old_entry != NULL ){
+        if ( old_entry != NULL ){
+            PDEBUG("free entry memory containing %s size %d", old_entry->buffptr, old_entry->size);
             // kfree(old_entry->buffptr);
             // kfree(old_entry);
-        // }
+        }
 
         memset(aesd_device.write_buff, 0, sizeof(aesd_device.write_buff));
         aesd_device.write_len = 0;
