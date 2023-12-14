@@ -63,11 +63,12 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     size_t * ret_offs;
 
     struct aesd_buffer_entry* entry = aesd_circular_buffer_find_entry_offset_for_fpos(aesd_device.dev_buff, read_offs, ret_offs);
-    PDEBUG("got entry %s with size %d",entry->buffptr, entry->size);
     if ( entry->size == 0 ){
+        PDEBUG("got empty entry");
         retval = 0;
         return retval;
     }
+    PDEBUG("got entry %s with size %d",entry->buffptr, entry->size);
     if ( entry->size > count ){
         retval = -EFAULT;
         return retval;
