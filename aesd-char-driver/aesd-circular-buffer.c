@@ -8,6 +8,7 @@
  *
  */
 
+#include <asm-generic/errno-base.h>
 #ifdef __KERNEL__
 #include <linux/string.h>
 #else
@@ -16,6 +17,32 @@
 #endif
 
 #include "aesd-circular-buffer.h"
+
+long aesd_circular_buffer_offset_adjust(struct aesd_circular_buffer *buffer,
+            size_t cmd_offset, size_t char_offset)
+{
+    int i = buffer->out_offs;
+    int real_offset = 0;
+    int target_cmd_offset = (buffer->out_offs + cmd_offset) % 10;
+    struct aesd_buffer_entry* entry;
+    while (i != target_cmd_offset) {
+        entry = buffer->entry[i];
+        if (entry == 0){
+            return -EINVAL;
+        }
+        real_offset += entry->size;
+        i = (i + 1) % 10;
+    };
+    entry = buffer->entry[i];
+    if (entry == 0){
+        return -EINVAL;
+    }
+    if (entry->size < char_offset){
+        return -EINVAL;
+    }
+    real_offset += entry->size;
+    return real_offset;
+}
 
 /**
  * @param buffer the buffer to search for corresponding offset.  Any necessary locking must be performed by caller.
@@ -74,8 +101,10 @@ struct aesd_buffer_entry * aesd_circular_buffer_add_entry(struct aesd_circular_b
 
     buffer->entry[target_in_offs] = (struct aesd_buffer_entry *)add_entry;
     buffer->in_offs = next_in_offs;
+    buffer->size += add_entry->size;
     if (buffer->full){
         buffer->out_offs = (buffer->out_offs + 1) % AESDCHAR_MAX_WRITE_OPERATIONS_SUPPORTED;
+        buffer->size -= last_entry->size;
         return last_entry;
     }
 

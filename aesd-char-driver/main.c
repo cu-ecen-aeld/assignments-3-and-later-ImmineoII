@@ -11,6 +11,7 @@
  *
  */
 
+#include <asm-generic/errno-base.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/string.h>
@@ -20,8 +21,11 @@
 #include <linux/cdev.h>
 #include <linux/fs.h> // file_operations
 #include <linux/slab.h> // kmalloc
+#include <sys/types.h>
 #include "aesd-circular-buffer.h"
 #include "aesdchar.h"
+#include "aesd_ioctl.h"
+
 int aesd_major =   0; // use dynamic major
 int aesd_minor =   0;
 
@@ -125,12 +129,52 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     retval = count;
     return retval;
 }
+
+loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
+    loff_t newpos;
+    switch (whence) {
+        case 0: /* SEEK_SET*/
+            newpos = off;
+            break;
+        case 1: /* SEEK_CUR*/
+            newpos = filp->f_pos + off;
+            break;
+        case 2: /* SEEK_END*/
+            newpos = aesd_device.size;
+            break;
+        default: /* can't happen */
+            return -EINVAL;
+    }
+    if(newpos < 0){
+        return -EINVAL;
+    }
+    if(newpos > aesd_device.size){
+        return -EINVAL;
+    }
+    filp->f_pos = newpos;
+    return newpos;
+}
+
+long aesd_ioctl(struct file *filp,unsigned int cmd, struct aesd_seekto* arg){
+    struct aesd_seekto* pargs;
+    int ret = copy_from_user(pargs,arg, sizeof(struct aesd_seekto));
+    switch (cmd) {
+        case AESDCHAR_IOCSEEKTO:
+            long newpos =  aesd_circular_buffer_offset_adjust(&aesd_device->buffer, pargs->write_cmd, pargs->write_cmd_offset);
+            break;
+        default:
+            return -EINVAL;
+    }
+}
+
 struct file_operations aesd_fops = {
     .owner =    THIS_MODULE,
     .read =     aesd_read,
     .write =    aesd_write,
     .open =     aesd_open,
     .release =  aesd_release,
+    .llseek =   aesd_llseek,
+    unlocked_ioctl = aesd_ioctl,
 };
 
 static int aesd_setup_cdev(struct aesd_dev *dev)
@@ -186,7 +230,11 @@ void aesd_cleanup_module(void)
     /**
      * TODO: cleanup AESD specific poritions here as necessary
      */
-    
+    struct aesd_buffer_entry *entry;
+    AESD_CIRCULAR_BUFFER_FOREACH(entry,aesd_device.dev_buff,index) {
+       free(entry->buffptr);
+       free(entry);
+    }
     mutex_destroy(&aesd_device.write_mutex);
     unregister_chrdev_region(devno, 1);
 }
