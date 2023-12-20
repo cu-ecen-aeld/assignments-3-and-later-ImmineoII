@@ -161,6 +161,7 @@ long aesd_ioctl(struct file *filp,unsigned int cmd, unsigned long arg){
     switch (cmd) {
         case AESDCHAR_IOCSEEKTO:
             newpos = aesd_circular_buffer_offset_adjust(aesd_device.dev_buff, pargs->write_cmd, pargs->write_cmd_offset);
+            filp->f_pos = newpos;
             break;
         default:
             return -EINVAL;
@@ -231,12 +232,12 @@ void aesd_cleanup_module(void)
     /**
      * TODO: cleanup AESD specific poritions here as necessary
      */
-    int index = 0;
-    struct aesd_buffer_entry *entry;
-    AESD_CIRCULAR_BUFFER_FOREACH(entry, aesd_device.dev_buff, index) {
-       kfree(entry->buffptr);
-       kfree(entry);
-    }
+    // int index = 0;
+    // struct aesd_buffer_entry *entry;
+    // AESD_CIRCULAR_BUFFER_FOREACH(entry, aesd_device.dev_buff, index) {
+    //    kfree(entry->buffptr);
+    //    kfree(entry);
+    // }
     mutex_destroy(&aesd_device.write_mutex);
     unregister_chrdev_region(devno, 1);
 }
