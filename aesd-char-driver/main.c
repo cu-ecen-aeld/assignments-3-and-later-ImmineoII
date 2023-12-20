@@ -230,7 +230,7 @@ void aesd_cleanup_module(void)
     /**
      * TODO: cleanup AESD specific poritions here as necessary
      */
-    int index 0;
+    int index = 0;
     struct aesd_buffer_entry *entry;
     AESD_CIRCULAR_BUFFER_FOREACH(entry, aesd_device.dev_buff, index) {
        kfree(entry->buffptr);
