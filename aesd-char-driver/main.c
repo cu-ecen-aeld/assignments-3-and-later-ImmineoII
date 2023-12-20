@@ -21,7 +21,6 @@
 #include <linux/cdev.h>
 #include <linux/fs.h> // file_operations
 #include <linux/slab.h> // kmalloc
-#include <sys/types.h>
 #include "aesd-circular-buffer.h"
 #include "aesdchar.h"
 #include "aesd_ioctl.h"
