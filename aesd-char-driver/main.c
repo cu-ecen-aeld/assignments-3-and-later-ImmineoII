@@ -139,7 +139,7 @@ loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
             newpos = filp->f_pos + off;
             break;
         case 2: /* SEEK_END*/
-            newpos = aesd_device.size;
+            newpos = aesd_device.dev_buff.size;
             break;
         default: /* can't happen */
             return -EINVAL;
@@ -147,7 +147,7 @@ loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
     if(newpos < 0){
         return -EINVAL;
     }
-    if(newpos > aesd_device.size){
+    if(newpos > aesd_device.dev_buff.size){
         return -EINVAL;
     }
     filp->f_pos = newpos;
@@ -159,11 +159,12 @@ long aesd_ioctl(struct file *filp,unsigned int cmd, struct aesd_seekto* arg){
     int ret = copy_from_user(pargs,arg, sizeof(struct aesd_seekto));
     switch (cmd) {
         case AESDCHAR_IOCSEEKTO:
-            long newpos =  aesd_circular_buffer_offset_adjust(&aesd_device->buffer, pargs->write_cmd, pargs->write_cmd_offset);
+            long newpos = aesd_circular_buffer_offset_adjust(&aesd_device.dev_buff, pargs->write_cmd, pargs->write_cmd_offset);
             break;
         default:
             return -EINVAL;
     }
+    return 0;
 }
 
 struct file_operations aesd_fops = {
@@ -229,10 +230,11 @@ void aesd_cleanup_module(void)
     /**
      * TODO: cleanup AESD specific poritions here as necessary
      */
+    int index 0;
     struct aesd_buffer_entry *entry;
-    AESD_CIRCULAR_BUFFER_FOREACH(entry,aesd_device.dev_buff,index) {
-       free(entry->buffptr);
-       free(entry);
+    AESD_CIRCULAR_BUFFER_FOREACH(entry, aesd_device.dev_buff, index) {
+       kfree(entry->buffptr);
+       kfree(entry);
     }
     mutex_destroy(&aesd_device.write_mutex);
     unregister_chrdev_region(devno, 1);
