@@ -139,7 +139,7 @@ loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
             newpos = filp->f_pos + off;
             break;
         case 2: /* SEEK_END*/
-            newpos = aesd_device.dev_buff.size;
+            newpos = aesd_device.dev_buff->size;
             break;
         default: /* can't happen */
             return -EINVAL;
@@ -147,7 +147,7 @@ loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
     if(newpos < 0){
         return -EINVAL;
     }
-    if(newpos > aesd_device.dev_buff.size){
+    if(newpos > aesd_device.dev_buff->size){
         return -EINVAL;
     }
     filp->f_pos = newpos;
@@ -156,10 +156,11 @@ loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
 
 long aesd_ioctl(struct file *filp,unsigned int cmd, struct aesd_seekto* arg){
     struct aesd_seekto* pargs;
+    long newpos;
     int ret = copy_from_user(pargs,arg, sizeof(struct aesd_seekto));
     switch (cmd) {
         case AESDCHAR_IOCSEEKTO:
-            long newpos = aesd_circular_buffer_offset_adjust(&aesd_device.dev_buff, pargs->write_cmd, pargs->write_cmd_offset);
+            newpos = aesd_circular_buffer_offset_adjust(aesd_device.dev_buff, pargs->write_cmd, pargs->write_cmd_offset);
             break;
         default:
             return -EINVAL;
