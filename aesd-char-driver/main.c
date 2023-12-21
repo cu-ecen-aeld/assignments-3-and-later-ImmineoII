@@ -79,12 +79,11 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
         retval = -EFAULT;
         return retval;
     }
-    
-    retval = entry->size;
-    copy_to_user(buf, entry->buffptr, count);
+    bytes_read = min(count, entry->size - ret_offs);
+    copy_to_user(buf, entry->buffptr + ret_offs, bytes_read);
     *f_pos = read_offs - ret_offs + entry->size; 
 
-    return retval;
+    return bytes_read;
 }
 
 ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
@@ -199,8 +198,7 @@ int aesd_init_module(void)
 {
     dev_t dev = 0;
     int result;
-    result = alloc_chrdev_region(&dev, aesd_minor, 1,
-            "aesdchar");
+    result = alloc_chrdev_region(&dev, aesd_minor, 1,"aesdchar");
     aesd_major = MAJOR(dev);
     if (result < 0) {
         printk(KERN_WARNING "Can't get major %d\n", aesd_major);
