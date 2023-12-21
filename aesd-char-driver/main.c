@@ -58,7 +58,7 @@ int aesd_release(struct inode *inode, struct file *filp)
 ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
                 loff_t *f_pos)
 {
-    ssize_t bytes_read = 0;
+    ssize_t bytes_read;
     PDEBUG("read %zu bytes with offset %lld",count,*f_pos);
     /**
     * TODO: handle read
@@ -78,7 +78,7 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
         return -EFAULT;
     }
     bytes_read = min(count, entry->size - ret_offs);
-    PDEBUG("Bytes to read %d in entry len %d", bytes_read, entry->size);
+    PDEBUG("Bytes to read %d in entry len %d from offset %d", bytes_read, entry->size,ret_offs);
     copy_to_user(buf, entry->buffptr + ret_offs, bytes_read);
     *f_pos += bytes_read; 
 
