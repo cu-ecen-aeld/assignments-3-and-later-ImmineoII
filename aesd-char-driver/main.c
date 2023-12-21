@@ -58,7 +58,7 @@ int aesd_release(struct inode *inode, struct file *filp)
 ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
                 loff_t *f_pos)
 {
-    ssize_t retval = 0;
+    ssize_t bytes_read = 0;
     PDEBUG("read %zu bytes with offset %lld",count,*f_pos);
     /**
     * TODO: handle read
@@ -71,13 +71,11 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     PDEBUG("ret offset %lld bytes",ret_offs);
     if ( entry == 0 ){
         PDEBUG("got empty entry");
-        retval = 0;
-        return retval;
+        return 0;
     }
     PDEBUG("got entry %s with size %d",entry->buffptr, entry->size);
     if ( entry->size > count ){
-        retval = -EFAULT;
-        return retval;
+        return -EFAULT;
     }
     bytes_read = min(count, entry->size - ret_offs);
     copy_to_user(buf, entry->buffptr + ret_offs, bytes_read);
