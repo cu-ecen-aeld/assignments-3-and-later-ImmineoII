@@ -78,8 +78,9 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
         return -EFAULT;
     }
     bytes_read = min(count, entry->size - ret_offs);
+    PDEBUG("Bytes to read %d in entry len %d", bytes_read, entry->size);
     copy_to_user(buf, entry->buffptr + ret_offs, bytes_read);
-    *f_pos = read_offs - ret_offs + entry->size; 
+    *f_pos += bytes_read; 
 
     return bytes_read;
 }
