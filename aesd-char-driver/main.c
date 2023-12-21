@@ -74,9 +74,6 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
         return 0;
     }
     PDEBUG("got entry %s with size %d",entry->buffptr, entry->size);
-    if ( entry->size > count ){
-        return -EFAULT;
-    }
     bytes_read = min(count, entry->size - ret_offs);
     PDEBUG("Bytes to read %d in entry len %d from offset %d", bytes_read, entry->size,ret_offs);
     copy_to_user(buf, entry->buffptr + ret_offs, bytes_read);
