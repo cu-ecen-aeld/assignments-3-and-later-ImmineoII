@@ -41,7 +41,7 @@ SLIST_HEAD(slisthead, thread_entry);
 static int server_fd;
 static pthread_mutex_t fd_lock; 
 static struct slisthead head;
-static pthread_t timestamp_thread_id;
+//static pthread_t timestamp_thread_id;
 
 static void* timestamp_thread_func(void* thread_args){
 
@@ -195,13 +195,13 @@ static void graceful_stop(int signum){
     thread_list_cleanup(false);
 
     //join timestamp thread
-    int ret = pthread_cancel(timestamp_thread_id);
-    if ( ret != 0 ){
-        //if fail to cancel try to wait
-        sleep(1);
-        pthread_cancel(timestamp_thread_id);
-    }
-    pthread_join(timestamp_thread_id, NULL);
+    // int ret = pthread_cancel(timestamp_thread_id);
+    // if ( ret != 0 ){
+    //     //if fail to cancel try to wait
+    //     sleep(1);
+    //     pthread_cancel(timestamp_thread_id);
+    // }
+    // pthread_join(timestamp_thread_id, NULL);
 
     pthread_mutex_destroy(&fd_lock);
     closelog();
@@ -345,7 +345,7 @@ int main(int argc, char **argv){
         syslog(LOG_DEBUG, "Unable to setup mutex");
     }
 
-    pthread_create(&timestamp_thread_id,NULL, timestamp_thread_func,NULL);
+    //pthread_create(&timestamp_thread_id,NULL, timestamp_thread_func,NULL);
 
     //init thread list
     SLIST_INIT(&head);
