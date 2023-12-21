@@ -136,7 +136,7 @@ loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
             newpos = filp->f_pos + off;
             break;
         case 2: /* SEEK_END*/
-            newpos = aesd_device.dev_buff->size;
+            newpos = aesd_device.dev_buff->size + off;
             break;
         default: /* can't happen */
             return -EINVAL;
