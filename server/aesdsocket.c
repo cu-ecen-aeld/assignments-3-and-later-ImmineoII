@@ -153,6 +153,7 @@ static void* client_thread_func(void* thread_args){
             int filled;
             if((filled = sscanf(buffer, "AESDCHAR_IOCSEEKTO:%u,%u",&ioctl_args.write_cmd,&ioctl_args.write_cmd_offset)) == 2 ){
                 ioctl(tfile_fd,AESDCHAR_IOCSEEKTO,&ioctl_args);
+                break;
             }
         #endif
         ret = write(tfile_fd,buffer, bytes_recv);
