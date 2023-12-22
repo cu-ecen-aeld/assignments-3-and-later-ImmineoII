@@ -150,12 +150,12 @@ loff_t aesd_llseek(struct file *filp, loff_t off, int whence){
 }
 
 long aesd_ioctl(struct file *filp,unsigned int cmd, unsigned long arg){
-    struct aesd_seekto* pargs;
+    struct aesd_seekto pargs;
     long newpos;
-    int ret = copy_from_user(pargs,(const void __user *)arg, sizeof(pargs));
+    int ret = copy_from_user(^pargs,(const void __user *)arg, sizeof(pargs));
     switch (cmd) {
         case AESDCHAR_IOCSEEKTO:
-            newpos = aesd_circular_buffer_offset_adjust(aesd_device.dev_buff, pargs->write_cmd, pargs->write_cmd_offset);
+            newpos = aesd_circular_buffer_offset_adjust(aesd_device.dev_buff, pargs.write_cmd, pargs.write_cmd_offset);
             if(newpos >= 0){
                 filp->f_pos = newpos;
             }else {
