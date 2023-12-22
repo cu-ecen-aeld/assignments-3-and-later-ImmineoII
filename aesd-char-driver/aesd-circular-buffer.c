@@ -21,11 +21,10 @@
 long aesd_circular_buffer_offset_adjust(struct aesd_circular_buffer *buffer,
             size_t cmd_offset, size_t char_offset)
 {
-    int i = buffer->out_offs;
+    int i = 0;
     int real_offset = 0;
-    int target_cmd_offset = (buffer->out_offs + cmd_offset) % 10;
     struct aesd_buffer_entry* entry;
-    while (i != target_cmd_offset) {
+    while (i != cmd_offset) {
         entry = buffer->entry[i];
         if (entry == 0){
             return -EINVAL;
@@ -40,7 +39,7 @@ long aesd_circular_buffer_offset_adjust(struct aesd_circular_buffer *buffer,
     if (entry->size < char_offset){
         return -EINVAL;
     }
-    real_offset += entry->size;
+    real_offset += char_offset;
     return real_offset;
 }
 
