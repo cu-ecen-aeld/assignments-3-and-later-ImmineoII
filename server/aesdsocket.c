@@ -142,6 +142,7 @@ static void* client_thread_func(void* thread_args){
 
     //receive message and dump to a file
     bool got_newline = false;
+    bool need_seek = true;
     ssize_t bytes_recv;
     while(!got_newline){
         
@@ -153,6 +154,7 @@ static void* client_thread_func(void* thread_args){
             int filled;
             if((filled = sscanf(buffer, "AESDCHAR_IOCSEEKTO:%u,%u",&ioctl_args.write_cmd,&ioctl_args.write_cmd_offset)) == 2 ){
                 ioctl(tfile_fd,AESDCHAR_IOCSEEKTO,&ioctl_args);
+                need_seek =false;
                 break;
             }
         #endif
@@ -168,8 +170,9 @@ static void* client_thread_func(void* thread_args){
         memset(buffer,0,sizeof(buffer));
 
     }
-
-    lseek(tfile_fd, 0, SEEK_SET);
+    if(need_seek){
+        lseek(tfile_fd, 0, SEEK_SET);
+    }
 
     if (tfile_fd == 0){
         syslog(LOG_DEBUG, "File seek failed");
