@@ -15,10 +15,11 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include "freebsd/queue.h"
+#include "../aesd-char-driver/aesd_ioctl.h"
 
 #define BUFF_SIZE 1024
 #define USE_AESD_CHAR_DEVICE 1
-#if USE_AESD_CHAR_DEVICE == 1
+#if USE_AESD_CHAR_DEVICE
 #define DATA_FILE "/dev/aesdchar"
 #else
 #define DATA_FILE "/var/tmp/aesdsocketdata"
@@ -147,6 +148,13 @@ static void* client_thread_func(void* thread_args){
         bytes_recv = recv(thread_data->client_fd,buffer,sizeof(buffer),0);
         syslog(LOG_DEBUG, "Received %zd bytes", bytes_recv);
 
+        #if USE_AESD_CHAR_DEVICE
+            struct aesd_seekto ioctl_args;
+            int filled;
+            if((filled = sscanf(buffer, "AESDCHAR_IOCSEEKTO:%u,%u",&ioctl_args.write_cmd,&ioctl_args.write_cmd_offset)) == 2 ){
+                ioctl(tfile_fd,AESDCHAR_IOCSEEKTO,&ioctl_args);
+            }
+        #endif
         ret = write(tfile_fd,buffer, bytes_recv);
         syslog(LOG_DEBUG, "Wrote %d bytes", ret);
         if (ret < 0){

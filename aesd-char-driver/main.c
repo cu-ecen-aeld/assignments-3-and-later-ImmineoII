@@ -156,7 +156,11 @@ long aesd_ioctl(struct file *filp,unsigned int cmd, unsigned long arg){
     switch (cmd) {
         case AESDCHAR_IOCSEEKTO:
             newpos = aesd_circular_buffer_offset_adjust(aesd_device.dev_buff, pargs->write_cmd, pargs->write_cmd_offset);
-            filp->f_pos = newpos;
+            if(newpos >= 0){
+                filp->f_pos = newpos;
+            }else {
+                return -EINVAL;
+            }
             break;
         default:
             return -EINVAL;
